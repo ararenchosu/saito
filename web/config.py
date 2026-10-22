@@ -1,3 +1,5 @@
+import os
+
 UNIT_SCALE = {
     "無量大数": 10**68, "那由多": 10**64, "不可思議": 10**60,
     "阿僧祇": 10**56, "恒河沙": 10**52, "極": 10**48,
@@ -19,3 +21,10 @@ FINAL_MULTIPLIER = {
 }
 
 PORT = 8080
+SITE_URL = "https://app-6cfc7eb9.fadehost.app"
+
+# Discord OAuth設定
+DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID", "")
+DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET", "")
+DISCORD_REDIRECT_URI = f"{SITE_URL}/callback"
+DISCORD_SCOPE = "identify"
