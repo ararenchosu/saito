@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マインスゲーム</title>
+<style>
+body { font-family: sans-serif; padding: 20px; background: #1a1a2e; color: #fff; }
+.grid { display: grid; grid-template-columns: repeat(5, 60px); gap: 8px; margin: 20px 0; }
+.cell { width: 60px; height: 60px; font-size: 24px; cursor: pointer; border: none; border-radius: 6px; background: #2ecc71; }
+.cell:hover { background: #27ae60; }
+.cell.opened { background: #555; cursor: default; }
+.cell.bomb { background: #e74c3c; }
+.info { margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; }
+</style>
+</head>
+<body>
+<h1>💎 マインス</h1>
+<div class="info">
+  残高：<span id="balance">0</span> | 倍率：<span id="multiplier">1.00x</span>
+</div>
+<div>
+  爆弾数：<input type="number" id="bombs" value="5" min="1" max="24">
+  賭け額：<input type="text" id="bet" placeholder="例: 100 / 5兆 / オールベット">
+  <button onclick="startGame()">ゲーム開始</button>
+  <button onclick="cashout()" id="cashoutBtn" disabled>回収</button>
+</div>
+<div class="grid" id="grid"></div>
+<div id="msg"></div>
+
+<script>
+const token = "{{ token }}";
+let gameActive = false;
+
+async function updateBalance() {
+  const res = await fetch("/api/balance", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({token})
+  });
+  const d = await res.json();
+  document.getElementById("balance").textContent = d.balance.toLocaleString();
+}
+
+async function startGame() {
+  const bombs = parseInt(document.getElementById("bombs").value);
+  const bet = document.getElementById("bet").value;
+  const res = await fetch("/api/start", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({token, bombs, bet})
+  });
+  const d = await res.json();
+  if (d.error) return alert(d.error);
+  gameActive = true;
+  document.getElementById("multiplier").textContent = "1.00x";
+  document.getElementById("cashoutBtn").disabled = false;
+  document.getElementById("msg").textContent = "";
+  renderGrid();
+  updateBalance();
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < 25; i++) {
+    const btn = document.createElement("button");
+    btn.className = "cell";
+    btn.onclick = () => openCell(i);
+    grid.appendChild(btn);
+  }
+}
+
+async function openCell(idx) {
+  if (!gameActive) return;
+  const res = await fetch("/api/open", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({token, index: idx})
+  });
+  const d = await res.json();
+  if (d.error) return;
+
+  const cells = document.querySelectorAll(".cell");
+  cells[idx].classList.add("opened");
+
+  if (d.result === "lose") {
+    gameActive = false;
+    d.bombs.forEach(i => { cells[i].classList.add("bomb"); cells[i].textContent = "💣"; });
+    document.getElementById("msg").textContent = "💣 爆弾！負けです";
+    document.getElementById("cashoutBtn").disabled = true;
+    updateBalance();
+  } else if (d.result === "win" || d.result === "continue") {
+    cells[idx].textContent = "💎";
+    document.getElementById("multiplier").textContent = d.multiplier + "x";
+    if (d.result === "win") {
+      gameActive = false;
+      document.getElementById("msg").textContent = `🎉 大当たり！${d.amount.toLocaleString()} ゲット！`;
+      document.getElementById("cashoutBtn").disabled = true;
+      updateBalance();
+    }
+  }
+}
+
+async function cashout() {
+  if (!gameActive) return;
+  const res = await fetch("/api/cashout", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({token})
+  });
+  const d = await res.json();
+  gameActive = false;
+  document.getElementById("msg").textContent = `💰 回収！${d.amount.toLocaleString()} ゲット！`;
+  document.getElementById("cashoutBtn").disabled = true;
+  updateBalance();
+}
+
+updateBalance();
+</script>
+</body>
+</html>
