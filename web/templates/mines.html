@@ -37,7 +37,9 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 /* ===== 上部ヘッダー ===== */
 .top-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid #1A2F42; }
 .logo { font-size: 1.7rem; font-weight: 900; color: var(--text-white); text-decoration: none; font-style: italic; }
-.header-right { display: flex; align-items: center; gap: 1rem; }
+.header-right { display: flex; align-items: center; gap: 1rem; position: relative; }
+
+/* ===== 残高ボックス：クリック可能 ===== */
 .balance-box {
   background: #142838;
   border: 1px solid #244058;
@@ -48,11 +50,43 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
   gap: 6px;
   font-weight: 600;
   font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+  position: relative;
 }
+.balance-box:hover { border-color: var(--accent-blue); }
 .balance-currency { color: var(--text-gray); }
 .balance-amount { color: var(--text-white); }
 .balance-icon { color: var(--accent-blue); font-size: 16px; }
 .balance-arrow { color: var(--text-muted); font-size: 10px; margin-left: 4px; }
+
+/* ===== 残高ドロップダウン ===== */
+.balance-dropdown {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  min-width: 200px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  z-index: 100;
+  display: none;
+}
+.balance-dropdown.show { display: block; }
+.dropdown-item {
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+}
+.dropdown-item:hover { background: var(--bg-input); }
+.dropdown-divider { height: 1px; background: var(--border); margin: 0.3rem 0; }
+
 .wallet-btn {
   background: var(--accent-blue);
   color: white;
@@ -68,6 +102,49 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 .header-icon { font-size: 1.2rem; opacity: 0.6; cursor: pointer; transition: 0.2s; }
 .header-icon:hover { opacity: 1; }
 
+/* ===== 入金モーダル ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+}
+.modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; }
+.modal-label { font-size: 0.9rem; color: var(--text-gray); margin-bottom: 0.5rem; display: block; }
+.modal-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  outline: none;
+}
+.modal-input:focus { border-color: var(--accent-blue); }
+.modal-btn-row { display: flex; gap: 0.8rem; }
+.modal-btn { flex: 1; padding: 0.9rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+.btn-cancel { background: var(--bg-input); color: var(--text-gray); }
+.btn-cancel:hover { background: var(--bg-cell-hover); color: white; }
+.btn-deposit { background: var(--accent-green); color: white; }
+.btn-deposit:hover { background: #00B85F; }
+.modal-result { text-align: center; padding: 1rem 0; display: none; }
+.modal-result.show { display: block; }
+.success-icon { font-size: 3rem; color: var(--accent-green); margin-bottom: 0.5rem; }
+
 /* ===== ゲームエリア ===== */
 .game-container { display: flex; flex: 1; padding: 1.5rem; gap: 1.5rem; overflow: hidden; }
 
@@ -76,7 +153,6 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 .toggle-row { display: flex; background: var(--bg-input); border-radius: 8px; padding: 3px; margin-bottom: 1.5rem; }
 .toggle-btn { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text-gray); font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; }
 .toggle-btn.active { background: var(--accent-blue); color: white; }
-
 .panel-label { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
 .bet-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
 .bet-input-wrap { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -143,12 +219,24 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
     <header class="top-header">
       <a href="/" class="logo">Stake</a>
       <div class="header-right">
-        <div class="balance-box">
+        <!-- 残高ボックス：クリックでメニュー -->
+        <div class="balance-box" id="balanceToggle">
           <span class="balance-currency">¥</span>
           <span class="balance-amount" id="balance">0.00</span>
           <span class="balance-icon">Ⓛ</span>
           <span class="balance-arrow">▼</span>
+          
+          <div class="balance-dropdown" id="balanceMenu">
+            <div class="dropdown-item" id="showBalance">
+              💰 残高を表示
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" id="openDeposit">
+              💳 入金
+            </div>
+          </div>
         </div>
+
         <button class="wallet-btn">ウォレット</button>
         <span class="header-icon">🔔</span>
         <span class="header-icon">👤</span>
@@ -219,10 +307,108 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
   </div>
 </div>
 
+<!-- 入金モーダル -->
+<div class="modal-overlay" id="depositModal">
+  <div class="modal-box">
+    <h3 class="modal-title">💳 入金</h3>
+    
+    <div id="depositForm">
+      <label class="modal-label">入金する金額（円）</label>
+      <input type="number" id="depositAmount" class="modal-input" placeholder="例: 1000" min="1">
+      
+      <div class="modal-btn-row">
+        <button class="modal-btn btn-cancel" id="cancelDeposit">キャンセル</button>
+        <button class="modal-btn btn-deposit" id="confirmDeposit">✅ 入金する</button>
+      </div>
+    </div>
+    
+    <div class="modal-result" id="depositSuccess">
+      <div class="success-icon">✅</div>
+      <h3 class="modal-title" style="margin-bottom:0.5rem;">入金完了！</h3>
+      <p style="color:var(--text-gray); margin-bottom:1rem;">アカウントに反映されました</p>
+      <button class="modal-btn btn-deposit" style="width:100%;" id="closeSuccess">OK</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let gameActive = false;
 
-// スライダー連動
+// ===== 残高ドロップダウン開閉 =====
+const balanceToggle = document.getElementById('balanceToggle');
+const balanceMenu = document.getElementById('balanceMenu');
+
+balanceToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  balanceMenu.classList.toggle('show');
+});
+
+// 外側クリックで閉じる
+document.addEventListener('click', () => {
+  balanceMenu.classList.remove('show');
+});
+balanceMenu.addEventListener('click', (e) => e.stopPropagation());
+
+// ===== 残高を表示 =====
+document.getElementById('showBalance').addEventListener('click', async () => {
+  balanceMenu.classList.remove('show');
+  const res = await fetch("/api/balance", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  });
+  const d = await res.json();
+  alert(`💰 現在の残高\n¥ ${Number(d.balance || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`);
+});
+
+// ===== 入金モーダルを開く =====
+const depositModal = document.getElementById('depositModal');
+document.getElementById('openDeposit').addEventListener('click', () => {
+  balanceMenu.classList.remove('show');
+  depositModal.classList.add('show');
+  document.getElementById('depositForm').style.display = 'block';
+  document.getElementById('depositSuccess').classList.remove('show');
+  document.getElementById('depositAmount').value = '';
+});
+
+// キャンセル
+document.getElementById('cancelDeposit').addEventListener('click', () => {
+  depositModal.classList.remove('show');
+});
+
+// ===== 入金実行 =====
+document.getElementById('confirmDeposit').addEventListener('click', async () => {
+  const amount = parseFloat(document.getElementById('depositAmount').value);
+  if (!amount || amount <= 0) {
+    alert("正しい金額を入力してください");
+    return;
+  }
+
+  const res = await fetch("/api/deposit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount: amount })
+  });
+  const d = await res.json();
+  
+  if (d.success) {
+    // フォーム→完了画面へ
+    document.getElementById('depositForm').style.display = 'none';
+    document.getElementById('depositSuccess').classList.add('show');
+    // ヘッダーの残高更新
+    document.getElementById('balance').textContent = 
+      Number(d.new_balance).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  } else {
+    alert(d.error || "入金に失敗しました");
+  }
+});
+
+// 完了→閉じる
+document.getElementById('closeSuccess').addEventListener('click', () => {
+  depositModal.classList.remove('show');
+});
+
+// ===== スライダー連動 =====
 const bombsSlider = document.getElementById('bombs');
 const bombCountEl = document.getElementById('bombCount');
 const maxMultEl = document.getElementById('maxMult');
@@ -243,7 +429,7 @@ bombsSlider.addEventListener('input', () => {
   maxMultEl.textContent = updateMaxMultiplier(v);
 });
 
-// ½ / 2× ボタン
+// ===== ½ / 2× ボタン =====
 const betInput = document.getElementById('bet');
 document.getElementById('halfBtn').addEventListener('click', () => {
   betInput.value = (parseFloat(betInput.value || 0) / 2).toFixed(2);
@@ -252,10 +438,10 @@ document.getElementById('doubleBtn').addEventListener('click', () => {
   betInput.value = (parseFloat(betInput.value || 0) * 2).toFixed(2);
 });
 
-// グリッド描画
+// ===== グリッド描画 =====
 function renderGrid() {
   const g = document.getElementById('grid'); g.innerHTML = '';
-  for(let i=0;i<25;i++){
+  for(let i = 0; i < 25; i++) {
     const b = document.createElement('button');
     b.className = 'cell';
     b.onclick = () => openCell(i);
@@ -263,7 +449,7 @@ function renderGrid() {
   }
 }
 
-// ゲーム開始
+// ===== ゲーム開始 =====
 document.getElementById('startBtn').addEventListener('click', async () => {
   if(gameActive) return;
   const bombs = parseInt(bombsSlider.value);
@@ -271,7 +457,7 @@ document.getElementById('startBtn').addEventListener('click', async () => {
   
   const res = await fetch("/api/start", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ bombs, bet })
   });
   const d = await res.json();
@@ -284,12 +470,12 @@ document.getElementById('startBtn').addEventListener('click', async () => {
   document.getElementById('startBtn').disabled = true;
 });
 
-// マスを開く
+// ===== マスを開く =====
 async function openCell(idx) {
   if(!gameActive) return;
   const res = await fetch("/api/open", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ index: idx })
   });
   const d = await res.json();
@@ -317,18 +503,36 @@ async function openCell(idx) {
   }
 }
 
-// 回収
+// ===== 回収 =====
 document.getElementById('cashoutBtn').addEventListener('click', async () => {
   if(!gameActive) return;
-  await fetch("/api/cashout", { method: "POST", body: "{}", headers: {"Content-Type": "application/json"} });
+  await fetch("/api/cashout", { 
+    method: "POST", 
+    body: JSON.stringify({}), 
+    headers: { "Content-Type": "application/json" } 
+  });
   gameActive = false;
   document.getElementById('cashoutBtn').style.display = 'none';
   document.getElementById('startBtn').textContent = 'ベット';
   document.getElementById('startBtn').disabled = false;
 });
 
+// ===== 残高更新 =====
+async function refreshBalance() {
+  const res = await fetch("/api/balance", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  });
+  const d = await res.json();
+  document.getElementById('balance').textContent = 
+    Number(d.balance || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// 初期読み込み
 renderGrid();
 maxMultEl.textContent = updateMaxMultiplier(1);
+refreshBalance();
 </script>
 </body>
 </html>
