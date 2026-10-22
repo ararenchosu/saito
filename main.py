@@ -24,8 +24,8 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         init_db()
         print("✅ DB初期化完了")
-        from features.mines_panel import setup as mines_setup
-        await mines_setup(self.tree, self)
+        # ✅ OAuth版に変更のため、mines_panelは不要になりました
+        # 必要な他のCog/機能があればここに追加してください
         synced = await self.tree.sync()
         print(f"✅ コマンド同期: {len(synced)}件")
 
