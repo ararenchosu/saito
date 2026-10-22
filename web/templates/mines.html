@@ -3,59 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>マインスゲーム</title>
+<title>💎 マインス | HONSABA</title>
 <style>
-body { font-family: sans-serif; padding: 20px; background: #1a1a2e; color: #fff; }
-.grid { display: grid; grid-template-columns: repeat(5, 60px); gap: 8px; margin: 20px 0; }
-.cell { width: 60px; height: 60px; font-size: 24px; cursor: pointer; border: none; border-radius: 6px; background: #2ecc71; }
-.cell:hover { background: #27ae60; }
-.cell.opened { background: #555; cursor: default; }
-.cell.bomb { background: #e74c3c; }
-.info { margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+:root {
+  --bg-main: #0F0F11;
+  --bg-card: #1A1A1F;
+  --bg-hover: #24242B;
+  --border: #2E2E38;
+  --gold: #F5B50A;
+  --green: #00D16F;
+  --red: #E53935;
+  --text: #FFFFFF;
+  --text-sec: #94949F;
+}
+body { background: var(--bg-main); color: var(--text); min-height: 100vh; padding: 2rem; }
+.container { max-width: 1200px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+.logo { font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+.balance-box { background: var(--bg-card); padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid var(--border); font-weight: 600; }
+.grid-wrap { display: flex; gap: 2rem; flex-wrap: wrap; }
+.game-panel { flex: 1; min-width: 340px; }
+.side-panel { width: 320px; display: flex; flex-direction: column; gap: 1rem; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.card h3 { font-size: 1rem; color: var(--text-sec); margin-bottom: 1rem; font-weight: 500; }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 1rem; }
+.cell { aspect-ratio: 1; border: none; border-radius: 8px; background: var(--bg-hover); cursor: pointer; font-size: 1.4rem; transition: all 0.25s ease; }
+.cell:hover { transform: scale(1.05); border: 1px solid var(--gold); }
+.cell.opened { cursor: default; }
+.cell.diamond { background: linear-gradient(135deg, #00D16F, #00B85F); }
+.cell.bomb { background: linear-gradient(135deg, #E53935, #C62828); }
+input { width: 100%; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text); padding: 0.75rem 1rem; border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; }
+input:focus { outline: none; border-color: var(--gold); }
+.btn { width: 100%; padding: 0.9rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(90deg, var(--gold), #E5A609); color: #000; }
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245,181,10,0.3); }
+.btn-green { background: linear-gradient(90deg, var(--green), #00B85F); color: #fff; margin-top: 0.5rem; }
+.btn-green:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(0,209,111,0.3); }
+.multiplier { font-size: 2rem; font-weight: 700; color: var(--green); margin: 0.5rem 0; }
+.status { margin-top: 1rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); font-weight: 500; min-height: 60px; }
 </style>
 </head>
 <body>
-<h1>💎 マインス</h1>
-<div class="info">
-  残高：<span id="balance">0</span> | 倍率：<span id="multiplier">1.00x</span>
+<div class="container">
+  <header>
+    <div class="logo">💎 HONSABA MINES</div>
+    <div class="balance-box">💰 残高：<span id="balance">0</span> PT</div>
+  </header>
+
+  <div class="grid-wrap">
+    <div class="game-panel card">
+      <h3>ゲーム盤</h3>
+      <div class="multiplier">倍率：<span id="multiplier">1.00</span>x</div>
+      <div class="grid" id="grid"></div>
+      <div class="status" id="status">
+        難易度を選んで「ゲーム開始」を押してください
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="card">
+        <h3>設定</h3>
+        <label style="color:var(--text-sec); font-size:0.9rem;">💣 爆弾数 (1～24)</label>
+        <input type="number" id="bombs" value="5" min="1" max="24">
+        
+        <label style="color:var(--text-sec); font-size:0.9rem;">💰 賭け額</label>
+        <input type="text" id="bet" placeholder="例: 100 / 5兆 / オールベット">
+        
+        <button class="btn btn-primary" id="startBtn" onclick="startGame()">🎮 ゲーム開始</button>
+        <button class="btn btn-green" id="cashoutBtn" onclick="cashout()" disabled>💰 回収する</button>
+      </div>
+    </div>
+  </div>
 </div>
-<div>
-  爆弾数：<input type="number" id="bombs" value="5" min="1" max="24">
-  賭け額：<input type="text" id="bet" placeholder="例: 100 / 5兆 / オールベット">
-  <button onclick="startGame()">ゲーム開始</button>
-  <button onclick="cashout()" id="cashoutBtn" disabled>回収</button>
-</div>
-<div class="grid" id="grid"></div>
-<div id="msg"></div>
 
 <script>
-const token = "{{ token }}";
+const userId = "{{ user_id }}";
 let gameActive = false;
 
 async function updateBalance() {
   const res = await fetch("/api/balance", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({token})
+    body: JSON.stringify({})
   });
   const d = await res.json();
-  document.getElementById("balance").textContent = d.balance.toLocaleString();
+  document.getElementById("balance").textContent = Number(d.balance).toLocaleString();
 }
 
 async function startGame() {
   const bombs = parseInt(document.getElementById("bombs").value);
   const bet = document.getElementById("bet").value;
+  
   const res = await fetch("/api/start", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({token, bombs, bet})
+    body: JSON.stringify({ bombs, bet })
   });
   const d = await res.json();
-  if (d.error) return alert(d.error);
+  if (d.error) { alert(d.error); return; }
+  
   gameActive = true;
-  document.getElementById("multiplier").textContent = "1.00x";
+  document.getElementById("multiplier").textContent = "1.00";
+  document.getElementById("status").textContent = "💎 マスをクリックして開けてください";
   document.getElementById("cashoutBtn").disabled = false;
-  document.getElementById("msg").textContent = "";
+  document.getElementById("startBtn").disabled = true;
   renderGrid();
   updateBalance();
 }
@@ -73,10 +126,11 @@ function renderGrid() {
 
 async function openCell(idx) {
   if (!gameActive) return;
+  
   const res = await fetch("/api/open", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({token, index: idx})
+    body: JSON.stringify({ index: idx })
   });
   const d = await res.json();
   if (d.error) return;
@@ -86,17 +140,23 @@ async function openCell(idx) {
 
   if (d.result === "lose") {
     gameActive = false;
-    d.bombs.forEach(i => { cells[i].classList.add("bomb"); cells[i].textContent = "💣"; });
-    document.getElementById("msg").textContent = "💣 爆弾！負けです";
+    d.bombs.forEach(i => {
+      cells[i].classList.add("bomb");
+      cells[i].textContent = "💣";
+    });
+    document.getElementById("status").innerHTML = "<span style='color:#E53935'>💣 爆弾！負けました</span>";
     document.getElementById("cashoutBtn").disabled = true;
+    document.getElementById("startBtn").disabled = false;
     updateBalance();
   } else if (d.result === "win" || d.result === "continue") {
+    cells[idx].classList.add("diamond");
     cells[idx].textContent = "💎";
-    document.getElementById("multiplier").textContent = d.multiplier + "x";
+    document.getElementById("multiplier").textContent = d.multiplier;
     if (d.result === "win") {
       gameActive = false;
-      document.getElementById("msg").textContent = `🎉 大当たり！${d.amount.toLocaleString()} ゲット！`;
+      document.getElementById("status").innerHTML = `<span style='color:#00D16F'>🎉 大当たり！${Number(d.amount).toLocaleString()} PT ゲット！</span>`;
       document.getElementById("cashoutBtn").disabled = true;
+      document.getElementById("startBtn").disabled = false;
       updateBalance();
     }
   }
@@ -107,12 +167,13 @@ async function cashout() {
   const res = await fetch("/api/cashout", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({token})
+    body: JSON.stringify({})
   });
   const d = await res.json();
   gameActive = false;
-  document.getElementById("msg").textContent = `💰 回収！${d.amount.toLocaleString()} ゲット！`;
+  document.getElementById("status").innerHTML = `<span style='color:#00D16F'>💰 回収成功！${Number(d.amount).toLocaleString()} PT</span>`;
   document.getElementById("cashoutBtn").disabled = true;
+  document.getElementById("startBtn").disabled = false;
   updateBalance();
 }
 
