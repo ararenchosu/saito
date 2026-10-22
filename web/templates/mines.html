@@ -3,125 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MINES — Stake風</title>
+<title>MINES — Stake</title>
 <style>
 :root {
-  --bg-main: #0F1E33;
-  --bg-secondary: #1A2C42;
-  --bg-tertiary: #243A54;
-  --bg-hover: #2C4463;
-  --border: #2E4A6B;
-  --accent-blue: #2563EB;
-  --accent-blue-btn: #3B82F6;
+  --bg-main: #0F1E2B;
+  --bg-panel: #142838;
+  --bg-cell: #1E3447;
+  --bg-cell-hover: #254059;
+  --bg-input: #1A2F42;
+  --border: #244058;
+  --accent-blue: #2584FF;
   --accent-green: #00D16F;
   --accent-gold: #F5B50A;
   --accent-red: #FF4D4F;
   --text-white: #FFFFFF;
-  --text-gray: #94A3B8;
-  --text-muted: #64748B;
+  --text-gray: #7AA0B8;
+  --text-muted: #5A7A90;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', Roboto, sans-serif; }
-body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; overflow: hidden; }
 
 /* ===== 全体レイアウト ===== */
 .app-container { display: flex; min-height: 100vh; }
 
-/* ===== 左サイドアイコンバー ===== */
-.side-icons { width: 56px; background: var(--bg-secondary); display: flex; flex-direction: column; align-items: center; padding: 1rem 0; gap: 1.5rem; border-right: 1px solid var(--border); }
-.side-icon { font-size: 1.25rem; opacity: 0.6; transition: 0.2s; cursor: pointer; }
-.side-icon:hover, .side-icon.active { opacity: 1; }
+/* ===== 左サイドメニュー ===== */
+.side-nav { width: 52px; background: #0F1E2B; display: flex; flex-direction: column; align-items: center; padding: 1rem 0; gap: 1.5rem; border-right: 1px solid #1A2F42; }
+.side-icon { font-size: 1.3rem; opacity: 0.5; cursor: pointer; transition: 0.2s; padding: 0.5rem; border-radius: 6px; }
+.side-icon:hover, .side-icon.active { opacity: 1; background: #1A2F42; }
 
 /* ===== メインエリア ===== */
-.main-area { flex: 1; padding: 1.5rem 2rem; }
+.main-wrap { flex: 1; display: flex; flex-direction: column; }
 
-/* ===== 上部ヘッダー：画像完全再現 ===== */
-.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-white); text-decoration: none; }
-
-.header-right { display: flex; align-items: center; gap: 12px; }
-
+/* ===== 上部ヘッダー ===== */
+.top-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid #1A2F42; }
+.logo { font-size: 1.7rem; font-weight: 900; color: var(--text-white); text-decoration: none; font-style: italic; }
+.header-right { display: flex; align-items: center; gap: 1rem; }
 .balance-box {
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  padding: 10px 14px;
+  background: #142838;
+  border: 1px solid #244058;
+  border-radius: 8px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 700;
-  font-size: 16px;
-  color: #ffffff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-}
-.balance-currency { color: #ffffff; }
-.balance-amount { color: #ffffff; letter-spacing: 0.5px; }
-.balance-icon { color: #5865F2; font-size: 18px; }
-.balance-arrow { color: rgba(255,255,255,0.65); font-size: 10px; margin-left: 4px; }
-
-.wallet-btn {
-  background: var(--accent-blue-btn);
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 24px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 15px;
+}
+.balance-currency { color: var(--text-gray); }
+.balance-amount { color: var(--text-white); }
+.balance-icon { color: var(--accent-blue); font-size: 16px; }
+.balance-arrow { color: var(--text-muted); font-size: 10px; margin-left: 4px; }
+.wallet-btn {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.25);
 }
-.wallet-btn:hover { background: #2563EB; transform: translateY(-1px); }
+.wallet-btn:hover { background: #1976ED; }
+.header-icon { font-size: 1.2rem; opacity: 0.6; cursor: pointer; transition: 0.2s; }
+.header-icon:hover { opacity: 1; }
 
-/* ===== ゲームレイアウト ===== */
-.game-layout { display: flex; gap: 2rem; flex-wrap: wrap; }
-.game-board { flex: 1; min-width: 360px; }
-.game-title { font-size: 1rem; color: var(--text-gray); margin-bottom: 1rem; }
-.multiplier { font-size: 2.5rem; font-weight: 800; color: var(--accent-green); margin-bottom: 1.5rem; font-family: 'SF Mono', monospace; }
+/* ===== ゲームエリア ===== */
+.game-container { display: flex; flex: 1; padding: 1.5rem; gap: 1.5rem; overflow: hidden; }
 
-/* ===== ゲーム盤 ===== */
-.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 400px; }
-.cell { aspect-ratio: 1; border: none; border-radius: 10px; background: var(--bg-tertiary); cursor: pointer; font-size: 1.5rem; transition: all 0.2s ease; }
-.cell:hover:not(.opened) { background: var(--bg-hover); transform: scale(1.05); border: 1px solid var(--accent-gold); }
+/* ===== 左操作パネル ===== */
+.control-panel { width: 300px; background: var(--bg-panel); border-radius: 10px; padding: 1.25rem; border: 1px solid var(--border); }
+.toggle-row { display: flex; background: var(--bg-input); border-radius: 8px; padding: 3px; margin-bottom: 1.5rem; }
+.toggle-btn { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text-gray); font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+.toggle-btn.active { background: var(--accent-blue); color: white; }
+
+.panel-label { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+.bet-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.bet-input-wrap { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.bet-input { flex: 1; background: transparent; border: none; color: white; font-size: 1rem; outline: none; }
+.bet-shortcut { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-white); border-radius: 4px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+.bet-shortcut:hover { border-color: var(--accent-blue); }
+
+/* 鉱石切り替え */
+.tabs-row { display: flex; background: var(--bg-input); border-radius: 6px; padding: 3px; margin-bottom: 1rem; }
+.tab-btn { flex: 1; padding: 0.5rem; border: none; background: transparent; color: var(--text-gray); font-weight: 600; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+.tab-btn.active { background: var(--bg-panel); color: white; border: 1px solid var(--border); }
+
+/* スライダー */
+.slider-container { margin-bottom: 1.25rem; }
+.slider-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-gray); margin-bottom: 0.5rem; }
+.slider { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-input); border-radius: 3px; outline: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--accent-blue); border-radius: 50%; cursor: pointer; border: 2px solid white; }
+
+/* ボタン */
+.btn { width: 100%; padding: 0.9rem; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: var(--accent-blue); color: white; margin-bottom: 0.75rem; }
+.btn-primary:hover:not(:disabled) { background: #1976ED; }
+.btn-secondary { background: var(--bg-input); color: var(--text-gray); border: 1px solid var(--border); margin-bottom: 1rem; }
+.btn-secondary:hover:not(:disabled) { background: var(--bg-cell-hover); color: white; }
+
+/* 総利益 */
+.profit-row { margin-top: 1rem; }
+.profit-label { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 0.5rem; }
+.profit-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+.profit-val { color: var(--text-white); font-weight: 600; }
+
+/* ===== ゲーム盤エリア ===== */
+.game-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #142838; border-radius: 10px; border: 1px solid var(--border); padding: 2rem; }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.cell { width: 70px; height: 70px; border: none; border-radius: 6px; background: var(--bg-cell); cursor: pointer; font-size: 1.5rem; transition: all 0.2s ease; }
+.cell:hover:not(.opened) { background: var(--bg-cell-hover); transform: scale(1.03); }
 .cell.opened { cursor: default; }
-.cell.diamond { background: linear-gradient(135deg, #00D16F, #00B85F); animation: pop 0.3s ease; }
-.cell.bomb { background: linear-gradient(135deg, #FF4D4F, #D32F2F); animation: shake 0.4s ease; }
+.cell.diamond { background: linear-gradient(135deg, #00D16F, #00B85F); animation: pop 0.25s ease; }
+.cell.bomb { background: linear-gradient(135deg, #FF4D4F, #C92A2A); animation: shake 0.35s ease; }
 @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
-/* ===== 操作パネル ===== */
-.control-panel { width: 320px; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); padding: 1.5rem; }
-.panel-label { font-size: 0.85rem; color: var(--text-gray); margin-bottom: 0.5rem; display: block; }
-.panel-input { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); color: white; padding: 0.8rem; border-radius: 6px; margin-bottom: 1rem; font-size: 1rem; }
-.panel-input:focus { outline: none; border-color: var(--accent-blue); }
-
-.btn { width: 100%; padding: 1rem; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-primary { background: var(--accent-gold); color: #000; margin-bottom: 0.75rem; }
-.btn-primary:hover:not(:disabled) { background: #E5A609; transform: translateY(-2px); }
-.btn-success { background: var(--accent-green); color: white; }
-.btn-success:hover:not(:disabled) { background: #00B85F; transform: translateY(-2px); }
-
-/* ===== ステータス・履歴 ===== */
-.status { margin-top: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 6px; min-height: 60px; }
-.history { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.history-tag { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-.history-win { background: rgba(0,209,111,0.15); color: var(--accent-green); }
-.history-lose { background: rgba(255,77,79,0.15); color: var(--accent-red); }
+/* 下部ステータス */
+.game-footer { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding: 0 1rem; }
+.multiplier-text { font-size: 1rem; color: var(--text-gray); }
+.multiplier-val { font-size: 1.3rem; font-weight: 700; color: var(--accent-green); margin-left: 0.5rem; }
+.refresh-btn { background: transparent; border: none; color: var(--text-gray); cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; }
+.refresh-btn:hover { color: white; }
 </style>
 </head>
 <body>
 <div class="app-container">
-  <!-- 左サイドアイコン -->
-  <aside class="side-icons">
-    <span class="side-icon" onclick="window.location.href='/'">🏠</span>
-    <span class="side-icon active">💎</span>
-    <span class="side-icon" onclick="window.location.href='/ranking'">📊</span>
-  </aside>
+  <!-- 左サイドメニュー -->
+  <nav class="side-nav">
+    <span class="side-icon active">📊</span>
+    <span class="side-icon">🎲</span>
+    <span class="side-icon">❤️</span>
+  </nav>
 
-  <!-- メインコンテンツ -->
-  <main class="main-area">
-    <!-- 上部：ホーム画面と統一 -->
-    <div class="top-bar">
+  <!-- メインエリア -->
+  <div class="main-wrap">
+    <!-- 上部ヘッダー -->
+    <header class="top-header">
       <a href="/" class="logo">Stake</a>
       <div class="header-right">
         <div class="balance-box">
@@ -130,80 +149,142 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
           <span class="balance-icon">Ⓛ</span>
           <span class="balance-arrow">▼</span>
         </div>
-        <button class="wallet-btn" onclick="window.location.href='/'">← ホーム</button>
+        <button class="wallet-btn">ウォレット</button>
+        <span class="header-icon">🔔</span>
+        <span class="header-icon">👤</span>
       </div>
-    </div>
+    </header>
 
-    <div class="game-layout">
-      <!-- ゲーム盤 -->
-      <div class="game-board">
-        <p class="game-title">MINES — 💎 ダイヤを探せ！</p>
-        <div class="multiplier"><span id="mult">1.00</span>x</div>
-        <div class="grid" id="grid"></div>
-        <div class="status" id="status">爆弾数と賭け額を設定して開始してください</div>
-        <div class="history" id="history"></div>
-      </div>
-
-      <!-- 操作パネル -->
+    <!-- ゲーム本体 -->
+    <div class="game-container">
+      <!-- 左操作パネル -->
       <div class="control-panel">
-        <label class="panel-label">💣 爆弾数 (1～24)</label>
-        <input type="number" id="bombs" class="panel-input" value="5" min="1" max="24">
-        
-        <label class="panel-label">💰 賭け額</label>
-        <input type="text" id="bet" class="panel-input" placeholder="例: 100 / 1兆 / オールベット">
-        
-        <button class="btn btn-primary" id="startBtn" onclick="startGame()">🎮 ゲーム開始</button>
-        <button class="btn btn-success" id="cashoutBtn" onclick="cashout()" disabled>💰 回収する</button>
+        <div class="toggle-row">
+          <button class="toggle-btn active">手動</button>
+          <button class="toggle-btn">自動</button>
+        </div>
+
+        <label class="panel-label">
+          ベット額
+          <span>0.00 LTC</span>
+        </label>
+        <div class="bet-row">
+          <div class="bet-input-wrap">
+            <span>¥</span>
+            <input type="text" id="bet" class="bet-input" value="0.00">
+            <span>🇯🇵</span>
+          </div>
+          <button class="bet-shortcut" id="halfBtn">½</button>
+          <button class="bet-shortcut" id="doubleBtn">2×</button>
+        </div>
+
+        <div class="tabs-row">
+          <button class="tab-btn active">Mines</button>
+          <button class="tab-btn">宝石</button>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-row">
+            <span>Mines</span>
+            <span id="bombCount">1</span>
+          </div>
+          <input type="range" id="bombs" class="slider" min="1" max="24" value="1">
+        </div>
+
+        <button class="btn btn-primary" id="startBtn">ベット</button>
+        <button class="btn btn-secondary">ランダム選択</button>
+
+        <div class="profit-row">
+          <div class="profit-label">総利益(1.00×)</div>
+          <div class="profit-box">
+            <span>¥ 0.00</span>
+            <span class="profit-val">🇯🇵</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右ゲーム盤 -->
+      <div class="game-area">
+        <div class="grid" id="grid"></div>
+        <div class="game-footer">
+          <button class="refresh-btn">🔄 リピート</button>
+          <div>
+            <span class="multiplier-text">最大マルチプライヤー</span>
+            <span class="multiplier-val" id="maxMult">24.75×</span>
+          </div>
+          <button class="btn btn-primary" id="cashoutBtn" style="width:auto;padding:0.75rem 1.5rem;display:none;">回収</button>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 </div>
 
 <script>
 let gameActive = false;
-let history = [];
 
-async function updateBalance() {
-  const res = await fetch("/api/balance", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({})
-  });
-  const d = await res.json();
-  // 小数点2桁表示
-  document.getElementById("balance").textContent = Number(d.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// スライダー連動
+const bombsSlider = document.getElementById('bombs');
+const bombCountEl = document.getElementById('bombCount');
+const maxMultEl = document.getElementById('maxMult');
+
+function updateMaxMultiplier(bombs) {
+  const safe = 25 - bombs;
+  if (safe <= 0) return '0.00×';
+  let mult = 1.0;
+  for (let i = 0; i < safe; i++) {
+    mult *= 25 / (25 - i);
+  }
+  return mult.toFixed(2) + '×';
 }
 
-async function startGame() {
-  const bombs = parseInt(document.getElementById("bombs").value);
-  const bet = document.getElementById("bet").value;
+bombsSlider.addEventListener('input', () => {
+  const v = parseInt(bombsSlider.value);
+  bombCountEl.textContent = v;
+  maxMultEl.textContent = updateMaxMultiplier(v);
+});
+
+// ½ / 2× ボタン
+const betInput = document.getElementById('bet');
+document.getElementById('halfBtn').addEventListener('click', () => {
+  betInput.value = (parseFloat(betInput.value || 0) / 2).toFixed(2);
+});
+document.getElementById('doubleBtn').addEventListener('click', () => {
+  betInput.value = (parseFloat(betInput.value || 0) * 2).toFixed(2);
+});
+
+// グリッド描画
+function renderGrid() {
+  const g = document.getElementById('grid'); g.innerHTML = '';
+  for(let i=0;i<25;i++){
+    const b = document.createElement('button');
+    b.className = 'cell';
+    b.onclick = () => openCell(i);
+    g.appendChild(b);
+  }
+}
+
+// ゲーム開始
+document.getElementById('startBtn').addEventListener('click', async () => {
+  if(gameActive) return;
+  const bombs = parseInt(bombsSlider.value);
+  const bet = betInput.value;
+  
   const res = await fetch("/api/start", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ bombs, bet })
   });
   const d = await res.json();
-  if (d.error) { alert(d.error); return; }
+  if(d.error) { alert(d.error); return; }
   
   gameActive = true;
-  document.getElementById("mult").textContent = "1.00";
-  document.getElementById("status").textContent = "💎 マスをクリックして開けてください";
-  document.getElementById("cashoutBtn").disabled = false;
-  document.getElementById("startBtn").disabled = true;
   renderGrid();
-  updateBalance();
-}
+  document.getElementById('cashoutBtn').style.display = 'block';
+  document.getElementById('startBtn').textContent = 'ベット中...';
+  document.getElementById('startBtn').disabled = true;
+});
 
-function renderGrid() {
-  const g = document.getElementById("grid"); g.innerHTML = "";
-  for(let i = 0; i < 25; i++) {
-    const b = document.createElement("button");
-    b.className = "cell";
-    b.onclick = () => openCell(i);
-    g.appendChild(b);
-  }
-}
-
+// マスを開く
 async function openCell(idx) {
   if(!gameActive) return;
   const res = await fetch("/api/open", {
@@ -212,60 +293,42 @@ async function openCell(idx) {
     body: JSON.stringify({ index: idx })
   });
   const d = await res.json();
-  const cells = document.querySelectorAll(".cell");
-  cells[idx].classList.add("opened");
+  const cells = document.querySelectorAll('.cell');
+  cells[idx].classList.add('opened');
 
-  if(d.result === "lose") {
+  if(d.result === 'lose') {
     gameActive = false;
     d.bombs.forEach(i => {
-      cells[i].classList.add("bomb");
-      cells[i].textContent = "💣";
+      cells[i].classList.add('bomb');
+      cells[i].textContent = '💣';
     });
-    addHistory(false);
-    document.getElementById("status").innerHTML = "<span style='color:var(--accent-red)'>💥 爆弾！負けました</span>";
-    document.getElementById("cashoutBtn").disabled = true;
-    document.getElementById("startBtn").disabled = false;
-    updateBalance();
+    document.getElementById('cashoutBtn').style.display = 'none';
+    document.getElementById('startBtn').textContent = 'ベット';
+    document.getElementById('startBtn').disabled = false;
   } else {
-    cells[idx].classList.add("diamond");
-    cells[idx].textContent = "💎";
-    document.getElementById("mult").textContent = d.multiplier;
-    if(d.result === "win") {
+    cells[idx].classList.add('diamond');
+    cells[idx].textContent = '💎';
+    if(d.result === 'win') {
       gameActive = false;
-      addHistory(true, d.multiplier);
-      document.getElementById("status").innerHTML = `<span style='color:var(--accent-green)'>🎉 大当たり！${Number(d.amount).toLocaleString()} PT</span>`;
-      document.getElementById("cashoutBtn").disabled = true;
-      document.getElementById("startBtn").disabled = false;
-      updateBalance();
+      document.getElementById('cashoutBtn').style.display = 'none';
+      document.getElementById('startBtn').textContent = 'ベット';
+      document.getElementById('startBtn').disabled = false;
     }
   }
 }
 
-async function cashout() {
+// 回収
+document.getElementById('cashoutBtn').addEventListener('click', async () => {
   if(!gameActive) return;
-  const res = await fetch("/api/cashout", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({})
-  });
-  const d = await res.json();
+  await fetch("/api/cashout", { method: "POST", body: "{}", headers: {"Content-Type": "application/json"} });
   gameActive = false;
-  addHistory(true, d.multiplier);
-  document.getElementById("status").innerHTML = `<span style='color:var(--accent-green)'>💰 回収成功！${Number(d.amount).toLocaleString()} PT</span>`;
-  document.getElementById("cashoutBtn").disabled = true;
-  document.getElementById("startBtn").disabled = false;
-  updateBalance();
-}
+  document.getElementById('cashoutBtn').style.display = 'none';
+  document.getElementById('startBtn').textContent = 'ベット';
+  document.getElementById('startBtn').disabled = false;
+});
 
-function addHistory(win, mult = 0) {
-  history.unshift({ win, mult });
-  if(history.length > 8) history.pop();
-  document.getElementById("history").innerHTML = history.map(h =>
-    `<span class="history-tag ${h.win ? 'history-win' : 'history-lose'}">${h.win ? `✓ ${h.mult}x` : '✗'}</span>`
-  ).join("");
-}
-
-updateBalance();
+renderGrid();
+maxMultEl.textContent = updateMaxMultiplier(1);
 </script>
 </body>
 </html>
