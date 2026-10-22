@@ -39,7 +39,7 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 
 .header-right { display: flex; align-items: center; gap: 12px; }
 
-/* ===== 残高ボックス：画像完全再現 ===== */
+/* ===== 残高ボックス：クリック可能 ===== */
 .balance-box {
   background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
   border: 1px solid rgba(255,255,255,0.12);
@@ -52,11 +52,42 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
   font-size: 16px;
   color: #ffffff;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: 0.2s;
+  position: relative;
 }
+.balance-box:hover { transform: translateY(-1px); border-color: var(--accent-blue); }
 .balance-currency { color: #ffffff; }
 .balance-amount { color: #ffffff; letter-spacing: 0.5px; }
 .balance-icon { color: #5865F2; font-size: 18px; }
 .balance-arrow { color: rgba(255,255,255,0.65); font-size: 10px; margin-left: 4px; }
+
+/* ===== 残高ドロップダウンメニュー ===== */
+.balance-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  min-width: 220px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 100;
+  display: none;
+}
+.balance-dropdown.show { display: block; }
+.dropdown-item {
+  padding: 0.85rem 1.2rem;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+}
+.dropdown-item:hover { background: var(--bg-hover); }
+.dropdown-divider { height: 1px; background: var(--border); margin: 0.3rem 0; }
 
 .wallet-btn {
   background: var(--accent-blue-btn);
@@ -72,8 +103,48 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 }
 .wallet-btn:hover { background: #2563EB; transform: translateY(-1px); }
 
-.header-icon { font-size: 1.2rem; cursor: pointer; opacity: 0.7; transition: 0.2s; margin-left: 4px; }
-.header-icon:hover { opacity: 1; }
+/* ===== モーダル：入金フォーム ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 420px;
+}
+.modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; }
+.modal-label { font-size: 0.9rem; color: var(--text-gray); margin-bottom: 0.5rem; display: block; }
+.modal-input {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  outline: none;
+}
+.modal-input:focus { border-color: var(--accent-blue); }
+.modal-btn-row { display: flex; gap: 0.8rem; }
+.modal-btn { flex: 1; padding: 0.9rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+.btn-cancel { background: var(--bg-tertiary); color: var(--text-gray); }
+.btn-cancel:hover { background: var(--bg-hover); color: white; }
+.btn-deposit { background: var(--accent-green); color: white; }
+.btn-deposit:hover { background: #00B85F; }
+.modal-result { text-align: center; padding: 1rem 0; display: none; }
+.modal-result.show { display: block; }
+.success-icon { font-size: 3rem; color: var(--accent-green); margin-bottom: 0.5rem; }
 
 /* ===== 検索バー ===== */
 .search-bar { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--text-white); margin-bottom: 1.5rem; font-size: 0.95rem; }
@@ -96,8 +167,6 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 .game-card-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
 .game-card-players { font-size: 0.7rem; color: var(--accent-green); display: flex; align-items: center; gap: 0.3rem; }
 .game-card-players::before { content: '●'; font-size: 0.5rem; }
-
-/* MINES カード専用カラー */
 .mines-gradient { background: linear-gradient(135deg, #0EA5E9, #0284C7); }
 </style>
 </head>
@@ -113,22 +182,32 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
 
   <!-- メインコンテンツ -->
   <main class="main-area">
-    <!-- 上部：画像完全再現 -->
+    <!-- 上部ヘッダー -->
     <div class="top-bar">
       <div class="logo">Stake</div>
       <div class="header-right">
-        <div class="balance-box">
+        <!-- 残高ボックス：クリックでメニュー展開 -->
+        <div class="balance-box" id="balanceToggle">
           <span class="balance-currency">¥</span>
           <span class="balance-amount" id="balance">0.00</span>
           <span class="balance-icon">Ⓛ</span>
           <span class="balance-arrow">▼</span>
+          
+          <!-- ドロップダウンメニュー -->
+          <div class="balance-dropdown" id="balanceMenu">
+            <div class="dropdown-item" id="showBalance">
+              💰 残高を表示
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" id="openDeposit">
+              💳 入金
+            </div>
+          </div>
         </div>
-        <button class="wallet-btn" onclick="{% if user_id %}window.location.href='/profile'{% else %}window.location.href='/login'{% endif %}">
-          {% if user_id %}👤 マイページ{% else %}🔐 ログイン{% endif %}
+
+        <button class="wallet-btn" onclick="window.location.href='/profile'">
+          👤 マイページ
         </button>
-        {% if user_id %}
-          <span class="header-icon" onclick="window.location.href='/logout'">🚪</span>
-        {% endif %}
       </div>
     </div>
 
@@ -147,7 +226,6 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
     <!-- ゲーム一覧 -->
     <h2 class="section-title">💎 Stakeオリジナル ＞</h2>
     <div class="game-grid">
-      <!-- MINES カード -->
       <div class="game-card" onclick="window.location.href='/mines'">
         <div class="game-card-image mines-gradient">💎 MINES</div>
         <div class="game-card-content">
@@ -160,17 +238,117 @@ body { background: var(--bg-main); color: var(--text-white); min-height: 100vh; 
   </main>
 </div>
 
+<!-- 入金モーダル -->
+<div class="modal-overlay" id="depositModal">
+  <div class="modal-box">
+    <h3 class="modal-title" id="modalTitle">💳 入金</h3>
+    
+    <div id="depositForm">
+      <label class="modal-label">入金する金額（円）</label>
+      <input type="number" id="depositAmount" class="modal-input" placeholder="例: 1000" min="1">
+      
+      <div class="modal-btn-row">
+        <button class="modal-btn btn-cancel" id="cancelDeposit">キャンセル</button>
+        <button class="modal-btn btn-deposit" id="confirmDeposit">✅ 入金する</button>
+      </div>
+    </div>
+    
+    <div class="modal-result" id="depositSuccess">
+      <div class="success-icon">✅</div>
+      <h3 class="modal-title" style="margin-bottom:0.5rem;">入金完了！</h3>
+      <p style="color:var(--text-gray); margin-bottom:1rem;">アカウントに反映されました</p>
+      <button class="modal-btn btn-deposit" style="width:100%;" id="closeSuccess">OK</button>
+    </div>
+  </div>
+</div>
+
 <script>
-async function updateBalance() {
+// ドロップダウン開閉
+const balanceToggle = document.getElementById('balanceToggle');
+const balanceMenu = document.getElementById('balanceMenu');
+
+balanceToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  balanceMenu.classList.toggle('show');
+});
+
+// 外側クリックで閉じる
+document.addEventListener('click', () => {
+  balanceMenu.classList.remove('show');
+});
+balanceMenu.addEventListener('click', (e) => e.stopPropagation());
+
+// 残高を表示
+document.getElementById('showBalance').addEventListener('click', async () => {
+  balanceMenu.classList.remove('show');
   {% if user_id %}
-    const res = await fetch("/api/balance", {
+    const res = await fetch("/api/balance", {method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+    const d = await res.json();
+    alert(`💰 現在の残高\n¥ ${Number(d.balance).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`);
+  {% else %}
+    alert("ログインしてください");
+  {% endif %}
+});
+
+// 入金モーダルを開く
+const depositModal = document.getElementById('depositModal');
+document.getElementById('openDeposit').addEventListener('click', () => {
+  balanceMenu.classList.remove('show');
+  depositModal.classList.add('show');
+  document.getElementById('depositForm').style.display = 'block';
+  document.getElementById('depositSuccess').classList.remove('show');
+  document.getElementById('depositAmount').value = '';
+});
+
+// キャンセル
+document.getElementById('cancelDeposit').addEventListener('click', () => {
+  depositModal.classList.remove('show');
+});
+
+// 入金実行
+document.getElementById('confirmDeposit').addEventListener('click', async () => {
+  const amount = parseFloat(document.getElementById('depositAmount').value);
+  if (!amount || amount <= 0) {
+    alert("正しい金額を入力してください");
+    return;
+  }
+
+  {% if user_id %}
+    const res = await fetch("/api/deposit", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({})
+      body: JSON.stringify({ amount: amount })
     });
     const d = await res.json();
-    // 小数点2桁表示にフォーマット
-    document.getElementById("balance").textContent = Number(d.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    
+    if (d.success) {
+      // フォーム→完了画面切り替え
+      document.getElementById('depositForm').style.display = 'none';
+      document.getElementById('depositSuccess').classList.add('show');
+      // 残高更新
+      document.getElementById('balance').textContent = 
+        Number(d.new_balance).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    } else {
+      alert(d.error || "入金に失敗しました");
+    }
+  {% else %}
+    alert("ログインしてください");
+    depositModal.classList.remove('show');
+  {% endif %}
+});
+
+// 完了→閉じる
+document.getElementById('closeSuccess').addEventListener('click', () => {
+  depositModal.classList.remove('show');
+});
+
+// 残高更新
+async function updateBalance() {
+  {% if user_id %}
+    const res = await fetch("/api/balance", {method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+    const d = await res.json();
+    document.getElementById("balance").textContent = 
+      Number(d.balance).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
   {% endif %}
 }
 updateBalance();
