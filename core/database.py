@@ -5,6 +5,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_FILE = os.path.join(BASE_DIR, "kn_points_data.json")
 HISTORY_FILE = os.path.join(BASE_DIR, "mines_history.json")
 
+# ✅ 追加：初期化関数
+def init_db():
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump({"points": {}}, f, ensure_ascii=False, indent=2)
+    if not os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+
 def load_all():
     if not os.path.exists(DATA_FILE):
         return {"points": {}}
