@@ -21,7 +21,7 @@ FINAL_MULTIPLIER = {
 }
 
 PORT = 8080
-SITE_URL = "https://app-6cfc7eb9.fadehost.app"
+SITE_URL = "https://app-75d2488f.fadehost.app"
 
 # Discord OAuth設定
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID", "")
